@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Falta muito pra sexta?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px 20px 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      line-height: 1.2;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    .section:first-of-type {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .section-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .countdown-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .time-box {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      border-radius: 10px;
+      padding: 8px 4px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+    }
+
+    .time-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .time-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .status-strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .explanation {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .explanation strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dotted var(--text-muted);
+    }
+
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      left: 0;
+      bottom: 120%;
+      width: 220px;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.4);
+      transition: opacity 150ms ease-out;
+      z-index: 10;
+    }
+
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 12px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: #111827 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .timezone-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      color: #1e3a8a;
+    }
+
+    .timezone-label {
+      font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px 16px 16px;
+      }
+
+      .countdown-row {
+        gap: 6px;
+      }
+
+      .time-value {
+        font-size: 1.15rem;
+      }
+
+      .tooltip-text {
+        left: auto;
+        right: 0;
+        width: 200px;
+      }
+
+      .tooltip-text::after {
+        left: auto;
+        right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <main class="card">
+      <h1>Falta muito pra <span>sexta?</span> 🌴</h1>
+      <p class="subtitle">
+        Veja quanto falta para a próxima sexta-feira e para o famoso “sextou” no seu horário local.
+      </p>
+
+      <!-- Até a próxima sexta -->
+      <section class="section" aria-label="Contagem até sexta-feira">
+        <header class="section-header">
+          <h2 class="section-title">Até a próxima sexta</h2>
+          <span class="section-subtitle">sexta-feira, 00:00</span>
+        </header>
+
+        <div class="countdown-row" id="friday-countdown">
+          <div class="time-box">
+            <div class="time-value" id="friday-days">0</div>
+            <div class="time-label">Dias</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="friday-hours">0</div>
+            <div class="time-label">Horas</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="friday-minutes">0</div>
+            <div class="time-label">Minutos</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="friday-seconds">0</div>
+            <div class="time-label">Segundos</div>
+          </div>
+        </div>
+
+        <p class="status" id="friday-status-text">
+          Carregando sua sexta...
+        </p>
+      </section>
+
+      <!-- Sextou às 17h -->
+      <section class="section" aria-label="Contagem até o sextou">
+        <header class="section-header">
+          <h2 class="section-title">E para o sextou?</h2>
+          <span class="section-subtitle">sexta-feira, 17:00</span>
+        </header>
+
+        <div class="countdown-row" id="sextou-countdown">
+          <div class="time-box">
+            <div class="time-value" id="sextou-days">0</div>
+            <div class="time-label">Dias</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="sextou-hours">0</div>
+            <div class="time-label">Horas</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="sextou-minutes">0</div>
+            <div class="time-label">Minutos</div>
+          </div>
+          <div class="time-box">
+            <div class="time-value" id="sextou-seconds">0</div>
+            <div class="time-label">Segundos</div>
+          </div>
+        </div>
+
+        <p class="status" id="sextou-status-text">
+          Preparando o sextou...
+        </p>
+
+        <p class="explanation">
+          <span class="tooltip">
+            O sextou começa às <strong>17h de sexta-feira</strong>.
+            <span class="tooltip-text">
+              Consideramos o “sextou” como 17h da sexta-feira no seu horário local.
+              Quando essa hora chega, o contador zera e passa a contar para a próxima semana.
+            </span>
+          </span>
+        </p>
+      </section>
+
+      <footer class="footer">
+        <div class="timezone-pill" id="timezone-pill">
+          <span>⏱️</span>
+          <span>
+            Horário: <span class="timezone-label" id="timezone-label">detectando...</span>
+          </span>
+        </div>
+        <span>
+          Tudo é calculado usando o relógio do seu dispositivo.
+        </span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    function getNextFridayMidnight(now) {
+      const date = new Date(now);
+      let day = date.getDay(); // 0 domingo, 1 segunda, ... 5 sexta
+      const diffToFriday = (5 - day + 7) % 7;
+      const target = new Date(date);
+      target.setHours(0, 0, 0, 0);
+
+      if (diffToFriday === 0 && now < target) {
+        return target;
+      } else {
+        target.setDate(target.getDate() + (diffToFriday === 0 ? 7 : diffToFriday));
+        return target;
+      }
+    }
+
+    function getNextSextou(now) {
+      const date = new Date(now);
+      let day = date.getDay();
+      const target = new Date(date);
+      target.setHours(17, 0, 0, 0);
+
+      const diffToFriday = (5 - day + 7) % 7;
+
+      if (diffToFriday === 0) {
+        if (now < target) {
+          return target;
+        } else {
+          target.setDate(target.getDate() + 7);
+          return target;
+        }
+      } else {
+        target.setDate(target.getDate() + diffToFriday);
+        return target;
+      }
+    }
+
+    function diffToParts(target, now) {
+      let diffMs = target.getTime() - now.getTime();
+      if (diffMs < 0) diffMs = 0;
+
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSeconds / (60 * 60 * 24));
+      const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60));
+      const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+      const seconds = totalSeconds % 60;
+
+      return { days, hours, minutes, seconds };
+    }
+
+    function formatStatus(parts, labelWhenNow) {
+      if (parts.days === 0 && parts.hours === 0 && parts.minutes === 0 && parts.seconds === 0) {
+        return labelWhenNow;
+      }
+
+      const chunks = [];
+      if (parts.days > 0) {
+        chunks.push(parts.days + " dia" + (parts.days > 1 ? "s" : ""));
+      }
+      if (parts.hours > 0) {
+        chunks.push(parts.hours + " hora" + (parts.hours > 1 ? "s" : ""));
+      }
+      if (parts.minutes > 0 && chunks.length < 2) {
+        chunks.push(parts.minutes + " minuto" + (parts.minutes > 1 ? "s" : ""));
+      }
+
+      return "Faltam " + (chunks.length ? chunks.join(", ") : "menos de 1 minuto") + ".";
+    }
+
+    function updateTimezoneDisplay() {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "fuso não identificado";
+      const label = document.getElementById("timezone-label");
+      label.textContent = tz;
+    }
+
+    function tick() {
+      const now = new Date();
+
+      const nextFriday = getNextFridayMidnight(now);
+      const fridayParts = diffToParts(nextFriday, now);
+
+      document.getElementById("friday-days").textContent = fridayParts.days;
+      document.getElementById("friday-hours").textContent = fridayParts.hours;
+      document.getElementById("friday-minutes").textContent = fridayParts.minutes;
+      document.getElementById("friday-seconds").textContent = fridayParts.seconds;
+
+      const fridayStatusText = document.getElementById("friday-status-text");
+      fridayStatusText.textContent = formatStatus(fridayParts, "Já é sexta! Contando para a próxima...");
+
+      const nextSextou = getNextSextou(now);
+      const sextouParts = diffToParts(nextSextou, now);
+
+      document.getElementById("sextou-days").textContent = sextouParts.days;
+      document.getElementById("sextou-hours").textContent = sextouParts.hours;
+      document.getElementById("sextou-minutes").textContent = sextouParts.minutes;
+      document.getElementById("sextou-seconds").textContent = sextouParts.seconds;
+
+      const sextouStatusText = document.getElementById("sextou-status-text");
+      sextouStatusText.textContent = formatStatus(sextouParts, "SESTOU! Próxima rodada em contagem regressiva...");
+    }
+
+    function startCountdowns() {
+      updateTimezoneDisplay();
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    window.addEventListener("DOMContentLoaded", startCountdowns);
+  </script>
+</body>
+</html>
