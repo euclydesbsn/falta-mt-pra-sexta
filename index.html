@@ -14,6 +14,7 @@
       --accent: #2563eb;
       --accent-soft: #dbeafe;
       --border: #e5e7eb;
+      --confetti-colors: #f87171, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ec4899, #10b981;
     }
 
     * {
@@ -32,6 +33,92 @@
       align-items: center;
       justify-content: center;
       padding: 24px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Confetti - CSS puro */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      left: 0;
+      width: 10px;
+      height: 10px;
+      background: currentColor;
+      animation: fall linear infinite;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.8;
+    }
+
+    .confetti:nth-child(1) { left: 10%; color: #f87171; animation-duration: 12s; animation-delay: 0s; }
+    .confetti:nth-child(2) { left: 20%; color: #f97316; animation-duration: 10s; animation-delay: -1s; }
+    .confetti:nth-child(3) { left: 30%; color: #eab308; animation-duration: 13s; animation-delay: -2s; }
+    .confetti:nth-child(4) { left: 40%; color: #22c55e; animation-duration: 11s; animation-delay: -3s; }
+    .confetti:nth-child(5) { left: 50%; color: #3b82f6; animation-duration: 14s; animation-delay: -0.5s; }
+    .confetti:nth-child(6) { left: 60%; color: #8b5cf6; animation-duration: 9s; animation-delay: -1.5s; }
+    .confetti:nth-child(7) { left: 70%; color: #ec4899; animation-duration: 12s; animation-delay: -2.5s; }
+    .confetti:nth-child(8) { left: 80%; color: #10b981; animation-duration: 10s; animation-delay: -3.5s; }
+    .confetti:nth-child(9) { left: 90%; color: #f87171; animation-duration: 11s; animation-delay: -1s; }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 0.8;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Fireworks particles */
+    .firework {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1001;
+    }
+
+    /* Sextou mode */
+    .sextou-mode {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #7c3aed 100%);
+      color: white;
+    }
+
+    .sextou-mode .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .sextou-mode .time-box,
+    .sextou-mode .section-title,
+    .sextou-mode .status-strong {
+      color: white !important;
+    }
+
+    .sextou-celebration {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 800;
+      text-align: center;
+      margin: 20px 0;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
     .container {
@@ -46,6 +133,8 @@
       padding: 24px 20px 20px;
       border: 1px solid var(--border);
       box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+      position: relative;
+      z-index: 10;
     }
 
     h1 {
@@ -63,6 +152,19 @@
       color: var(--text-muted);
       font-size: 0.95rem;
       margin-bottom: 20px;
+    }
+
+    .friday-celebration {
+      font-size: 1.3rem;
+      color: #22c55e;
+      font-weight: 600;
+      margin-bottom: 8px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
     }
 
     .section {
@@ -235,15 +337,24 @@
         left: auto;
         right: 12px;
       }
+
+      /* Menos confetti no mobile */
+      .confetti {
+        width: 8px;
+        height: 8px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Confetti container - aparece só na sexta -->
+  <div id="confetti-container" style="display: none;"></div>
+
   <div class="container">
     <main class="card">
-      <h1>Falta muito pra <span>sexta?</span> 🌴</h1>
+      <h1>Falta muito pra <span>sexta?</span></h1>
       <p class="subtitle">
-        Veja quanto falta para a próxima sexta-feira e para o famoso “sextou” no seu horário local.
+        Veja quanto falta para a próxima sexta-feira e para o famoso "sextou" no seu horário local.
       </p>
 
       <!-- Até a próxima sexta -->
@@ -252,6 +363,10 @@
           <h2 class="section-title">Até a próxima sexta</h2>
           <span class="section-subtitle">sexta-feira, 00:00</span>
         </header>
+
+        <div id="friday-celebration" class="friday-celebration" style="display: none;">
+          🎉 HOJE É SEXTA! 🎉
+        </div>
 
         <div class="countdown-row" id="friday-countdown">
           <div class="time-box">
@@ -274,6 +389,10 @@
 
         <p class="status" id="friday-status-text">
           Carregando sua sexta...
+        </p>
+
+        <p class="explanation">
+          Aqui consideramos que a sexta começa à <strong>00:00</strong> do seu fuso horário.
         </p>
       </section>
 
@@ -311,7 +430,7 @@
           <span class="tooltip">
             O sextou começa às <strong>17h de sexta-feira</strong>.
             <span class="tooltip-text">
-              Consideramos o “sextou” como 17h da sexta-feira no seu horário local.
+              Consideramos o "sextou" como 17h da sexta-feira no seu horário local.
               Quando essa hora chega, o contador zera e passa a contar para a próxima semana.
             </span>
           </span>
@@ -333,9 +452,12 @@
   </div>
 
   <script>
+    let confettiActive = false;
+    let fireworksInterval = null;
+
     function getNextFridayMidnight(now) {
       const date = new Date(now);
-      let day = date.getDay(); // 0 domingo, 1 segunda, ... 5 sexta
+      let day = date.getDay();
       const diffToFriday = (5 - day + 7) % 7;
       const target = new Date(date);
       target.setHours(0, 0, 0, 0);
@@ -401,10 +523,65 @@
       return "Faltam " + (chunks.length ? chunks.join(", ") : "menos de 1 minuto") + ".";
     }
 
+    function createConfetti() {
+      const container = document.getElementById('confetti-container');
+      container.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        container.appendChild(confetti);
+      }
+      container.style.display = 'block';
+      confettiActive = true;
+    }
+
+    function removeConfetti() {
+      document.getElementById('confetti-container').style.display = 'none';
+      confettiActive = false;
+    }
+
+    function createFireworks() {
+      const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+      
+      for (let i = 0; i < 25; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework';
+        firework.style.left = Math.random() * 100 + '%';
+        firework.style.top = Math.random() * 100 + '%';
+        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+        firework.style.animation = 'explode 1.5s ease-out forwards';
+        document.body.appendChild(firework);
+
+        setTimeout(() => firework.remove(), 1500);
+      }
+    }
+
+    function addExplodeAnimation() {
+      if (!document.styleSheets[0].cssRules[document.styleSheets[0].cssRules.length - 1]?.cssText.includes('explode')) {
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes explode {
+            0% {
+              opacity: 1;
+              transform: scale(0) rotate(0deg);
+            }
+            50% {
+              opacity: 1;
+              transform: scale(1.2) rotate(180deg);
+            }
+            100% {
+              opacity: 0;
+              transform: scale(0) rotate(360deg);
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+
     function updateTimezoneDisplay() {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "fuso não identificado";
-      const label = document.getElementById("timezone-label");
-      label.textContent = tz;
+      document.getElementById("timezone-label").textContent = tz;
     }
 
     function tick() {
@@ -412,6 +589,7 @@
 
       const nextFriday = getNextFridayMidnight(now);
       const fridayParts = diffToParts(nextFriday, now);
+      const isFriday = fridayParts.days === 0 && fridayParts.hours === 0 && fridayParts.minutes === 0 && fridayParts.seconds === 0;
 
       document.getElementById("friday-days").textContent = fridayParts.days;
       document.getElementById("friday-hours").textContent = fridayParts.hours;
@@ -419,10 +597,20 @@
       document.getElementById("friday-seconds").textContent = fridayParts.seconds;
 
       const fridayStatusText = document.getElementById("friday-status-text");
-      fridayStatusText.textContent = formatStatus(fridayParts, "Já é sexta! Contando para a próxima...");
+      fridayStatusText.textContent = formatStatus(fridayParts, "É SEXTA! 🎉");
+
+      const fridayCelebration = document.getElementById("friday-celebration");
+      if (isFriday) {
+        fridayCelebration.style.display = 'block';
+        if (!confettiActive) createConfetti();
+      } else {
+        fridayCelebration.style.display = 'none';
+        removeConfetti();
+      }
 
       const nextSextou = getNextSextou(now);
       const sextouParts = diffToParts(nextSextou, now);
+      const isSextou = sextouParts.days === 0 && sextouParts.hours === 0 && sextouParts.minutes === 0 && sextouParts.seconds === 0;
 
       document.getElementById("sextou-days").textContent = sextouParts.days;
       document.getElementById("sextou-hours").textContent = sextouParts.hours;
@@ -430,7 +618,32 @@
       document.getElementById("sextou-seconds").textContent = sextouParts.seconds;
 
       const sextouStatusText = document.getElementById("sextou-status-text");
-      sextouStatusText.textContent = formatStatus(sextouParts, "SESTOU! Próxima rodada em contagem regressiva...");
+      sextouStatusText.textContent = formatStatus(sextouParts, "SESTOU! 🥳");
+
+      const body = document.body;
+      if (isSextou) {
+        body.classList.add('sextou-mode');
+        const celebration = document.querySelector('.sextou-celebration');
+        if (!celebration) {
+          const h1 = document.querySelector('h1');
+          const sextouTitle = document.createElement('div');
+          sextouTitle.className = 'sextou-celebration';
+          sextouTitle.textContent = '🥳 SESTOU! 🥳';
+          h1.parentNode.insertBefore(sextouTitle, h1.nextSibling);
+        }
+        addExplodeAnimation();
+        if (!fireworksInterval) {
+          fireworksInterval = setInterval(createFireworks, 800);
+        }
+      } else {
+        body.classList.remove('sextou-mode');
+        const celebration = document.querySelector('.sextou-celebration');
+        if (celebration) celebration.remove();
+        if (fireworksInterval) {
+          clearInterval(fireworksInterval);
+          fireworksInterval = null;
+        }
+      }
     }
 
     function startCountdowns() {
