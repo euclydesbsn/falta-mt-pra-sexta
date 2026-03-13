@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <title>Falta muito pra sexta?</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' text-anchor='middle' dominant-baseline='middle'>🌴</text></svg>">
-  
+
   <style>
     :root {
       --bg: #f5f5f5;
@@ -102,7 +102,8 @@
 
     .sextou-mode .time-box,
     .sextou-mode .section-title,
-    .sextou-mode .status-strong {
+    .sextou-mode .status-strong,
+    .sextou-mode .friday-celebration {
       color: white !important;
     }
 
@@ -156,13 +157,21 @@
       margin-bottom: 20px;
     }
 
-    .friday-celebration {
-      font-size: 1.3rem;
+    .friday-celebration-main {
+      font-size: 1.4rem;
       color: #22c55e;
-      font-weight: 600;
-      margin-bottom: 8px;
-      animation: pulse 2s ease-in-out infinite;
+      font-weight: 700;
+      margin-bottom: 4px;
       text-align: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .friday-celebration-sub {
+      font-size: 0.95rem;
+      color: #16a34a;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 20px;
     }
 
     @keyframes pulse {
@@ -317,6 +326,21 @@
       font-weight: 500;
     }
 
+    .palm-tree {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 2.5rem;
+      opacity: 0.3;
+      animation: sway 3s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+
     @media (max-width: 480px) {
       .card {
         padding: 20px 16px 16px;
@@ -345,19 +369,36 @@
         width: 8px;
         height: 8px;
       }
+
+      .palm-tree {
+        font-size: 2rem;
+        top: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Confetti container -->
   <div id="confetti-container" style="display: none;"></div>
+  
+  <!-- Palmeira -->
+  <div class="palm-tree">🌴</div>
 
   <div class="container">
     <main class="card">
-      <h1>Falta muito pra <span>sexta?</span> 🌴</h1>
+      <h1>Falta muito pra <span>sexta?</span></h1>
       <p class="subtitle">
         Veja quanto falta para a próxima sexta-feira e para o famoso "sextou" no seu horário local.
       </p>
+
+      <!-- Celebração da sexta - FORA da seção -->
+      <div id="friday-celebration-main" class="friday-celebration-main" style="display: none;">
+        🎉 HOJE É SEXTA! 🎉
+      </div>
+      <div id="friday-celebration-sub" class="friday-celebration-sub" style="display: none;">
+        Aproveite o dia! ☀️
+      </div>
 
       <!-- Até a próxima sexta -->
       <section class="section" aria-label="Contagem até sexta-feira">
@@ -365,10 +406,6 @@
           <h2 class="section-title">Até a próxima sexta</h2>
           <span class="section-subtitle">sexta-feira, 00:00</span>
         </header>
-
-        <div id="friday-celebration" class="friday-celebration" style="display: none;">
-          🎉 HOJE É SEXTA! 🎉
-        </div>
 
         <div class="countdown-row" id="friday-countdown">
           <div class="time-box">
@@ -391,10 +428,6 @@
 
         <p class="status" id="friday-status-text">
           Carregando sua sexta...
-        </p>
-
-        <p class="explanation">
-          Aqui consideramos que a sexta começa à <strong>00:00</strong> do seu fuso horário.
         </p>
       </section>
 
@@ -563,8 +596,9 @@
     }
 
     function addExplodeAnimation() {
-      if (!document.styleSheets[0]?.cssRules.find(rule => rule.cssText.includes('explode'))) {
+      if (!document.querySelector('style[data-explode]')) {
         const style = document.createElement('style');
+        style.setAttribute('data-explode', 'true');
         style.textContent = `
           @keyframes explode {
             0% {
@@ -594,7 +628,7 @@
       const now = new Date();
       const isFridayToday = isTodayFriday(now);
 
-      // Sextou primeiro (17h em diante da sexta)
+      // Sextou primeiro (17h+ na sexta)
       const nextSextou = getNextSextou(now);
       const sextouParts = diffToParts(nextSextou, now);
       const isSextou = sextouParts.days === 0 && sextouParts.hours === 0 && sextouParts.minutes === 0 && sextouParts.seconds === 0;
@@ -605,7 +639,7 @@
       document.getElementById("sextou-seconds").textContent = sextouParts.seconds;
 
       const sextouStatusText = document.getElementById("sextou-status-text");
-      sextouStatusText.textContent = formatStatus(sextouParts, "SESTOU! 🥳");
+      sextouStatusText.textContent = formatStatus(sextouParts, "É sextou! 🥳");
 
       const body = document.body;
       if (isSextou) {
@@ -615,7 +649,7 @@
           const h1 = document.querySelector('h1');
           const sextouTitle = document.createElement('div');
           sextouTitle.className = 'sextou-celebration';
-          sextouTitle.textContent = '🥳 SEXTOU! 🥳';
+          sextouTitle.textContent = '🥳 sextou! 🥳';
           h1.parentNode.insertBefore(sextouTitle, h1.nextSibling);
         }
         addExplodeAnimation();
@@ -644,14 +678,18 @@
       const fridayStatusText = document.getElementById("friday-status-text");
       
       if (isFridayToday) {
-        fridayStatusText.textContent = "É SEXTA! 🎉 Aproveite o dia!";
-        const fridayCelebration = document.getElementById("friday-celebration");
-        fridayCelebration.style.display = 'block';
+        fridayStatusText.textContent = "Contando até a próxima semana!";
+        const fridayMain = document.getElementById("friday-celebration-main");
+        const fridaySub = document.getElementById("friday-celebration-sub");
+        fridayMain.style.display = 'block';
+        fridaySub.style.display = 'block';
         if (!confettiActive) createConfetti();
       } else {
         fridayStatusText.textContent = formatStatus(fridayParts, "É sexta hoje!");
-        const fridayCelebration = document.getElementById("friday-celebration");
-        fridayCelebration.style.display = 'none';
+        const fridayMain = document.getElementById("friday-celebration-main");
+        const fridaySub = document.getElementById("friday-celebration-sub");
+        fridayMain.style.display = 'none';
+        fridaySub.style.display = 'none';
         removeConfetti();
       }
     }
