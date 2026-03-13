@@ -160,6 +160,7 @@
       font-weight: 600;
       margin-bottom: 8px;
       animation: pulse 2s ease-in-out infinite;
+      text-align: center;
     }
 
     @keyframes pulse {
@@ -338,7 +339,6 @@
         right: 12px;
       }
 
-      /* Menos confetti no mobile */
       .confetti {
         width: 8px;
         height: 8px;
@@ -347,12 +347,12 @@
   </style>
 </head>
 <body>
-  <!-- Confetti container - aparece só na sexta -->
+  <!-- Confetti container -->
   <div id="confetti-container" style="display: none;"></div>
 
   <div class="container">
     <main class="card">
-      <h1>Falta muito pra <span>sexta?</span></h1>
+      <h1>Falta muito pra <span>sexta?</span> 🌴</h1>
       <p class="subtitle">
         Veja quanto falta para a próxima sexta-feira e para o famoso "sextou" no seu horário local.
       </p>
@@ -504,6 +504,10 @@
       return { days, hours, minutes, seconds };
     }
 
+    function isTodayFriday(now) {
+      return now.getDay() === 5; // 5 = sexta-feira
+    }
+
     function formatStatus(parts, labelWhenNow) {
       if (parts.days === 0 && parts.hours === 0 && parts.minutes === 0 && parts.seconds === 0) {
         return labelWhenNow;
@@ -557,7 +561,7 @@
     }
 
     function addExplodeAnimation() {
-      if (!document.styleSheets[0].cssRules[document.styleSheets[0].cssRules.length - 1]?.cssText.includes('explode')) {
+      if (!document.styleSheets[0]?.cssRules.find(rule => rule.cssText.includes('explode'))) {
         const style = document.createElement('style');
         style.textContent = `
           @keyframes explode {
@@ -586,28 +590,9 @@
 
     function tick() {
       const now = new Date();
+      const isFridayToday = isTodayFriday(now);
 
-      const nextFriday = getNextFridayMidnight(now);
-      const fridayParts = diffToParts(nextFriday, now);
-      const isFriday = fridayParts.days === 0 && fridayParts.hours === 0 && fridayParts.minutes === 0 && fridayParts.seconds === 0;
-
-      document.getElementById("friday-days").textContent = fridayParts.days;
-      document.getElementById("friday-hours").textContent = fridayParts.hours;
-      document.getElementById("friday-minutes").textContent = fridayParts.minutes;
-      document.getElementById("friday-seconds").textContent = fridayParts.seconds;
-
-      const fridayStatusText = document.getElementById("friday-status-text");
-      fridayStatusText.textContent = formatStatus(fridayParts, "É SEXTA! 🎉");
-
-      const fridayCelebration = document.getElementById("friday-celebration");
-      if (isFriday) {
-        fridayCelebration.style.display = 'block';
-        if (!confettiActive) createConfetti();
-      } else {
-        fridayCelebration.style.display = 'none';
-        removeConfetti();
-      }
-
+      // Sextou primeiro (17h em diante da sexta)
       const nextSextou = getNextSextou(now);
       const sextouParts = diffToParts(nextSextou, now);
       const isSextou = sextouParts.days === 0 && sextouParts.hours === 0 && sextouParts.minutes === 0 && sextouParts.seconds === 0;
@@ -618,7 +603,7 @@
       document.getElementById("sextou-seconds").textContent = sextouParts.seconds;
 
       const sextouStatusText = document.getElementById("sextou-status-text");
-      sextouStatusText.textContent = formatStatus(sextouParts, "SESTOU! 🥳");
+      sextouStatusText.textContent = formatStatus(sextouParts, "SEXTOU! 🥳");
 
       const body = document.body;
       if (isSextou) {
@@ -628,7 +613,7 @@
           const h1 = document.querySelector('h1');
           const sextouTitle = document.createElement('div');
           sextouTitle.className = 'sextou-celebration';
-          sextouTitle.textContent = '🥳 SESTOU! 🥳';
+          sextouTitle.textContent = '🥳 SEXTOU! 🥳';
           h1.parentNode.insertBefore(sextouTitle, h1.nextSibling);
         }
         addExplodeAnimation();
@@ -643,6 +628,29 @@
           clearInterval(fireworksInterval);
           fireworksInterval = null;
         }
+      }
+
+      // Friday countdown
+      const nextFriday = getNextFridayMidnight(now);
+      const fridayParts = diffToParts(nextFriday, now);
+
+      document.getElementById("friday-days").textContent = fridayParts.days;
+      document.getElementById("friday-hours").textContent = fridayParts.hours;
+      document.getElementById("friday-minutes").textContent = fridayParts.minutes;
+      document.getElementById("friday-seconds").textContent = fridayParts.seconds;
+
+      const fridayStatusText = document.getElementById("friday-status-text");
+      
+      if (isFridayToday) {
+        fridayStatusText.textContent = "É SEXTA! 🎉 Aproveite o dia!";
+        const fridayCelebration = document.getElementById("friday-celebration");
+        fridayCelebration.style.display = 'block';
+        if (!confettiActive) createConfetti();
+      } else {
+        fridayStatusText.textContent = formatStatus(fridayParts, "É sexta hoje!");
+        const fridayCelebration = document.getElementById("friday-celebration");
+        fridayCelebration.style.display = 'none';
+        removeConfetti();
       }
     }
 
